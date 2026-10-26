@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mihovil Vargović — Product Designer</title>
+<meta name="description" content="Mihovil Vargović — Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.">
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #111113;
+    --muted: #6b6b70;
+    --border: #e7e7ea;
+    --accent: #111113;
+    --accent-text: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b0b0c;
+      --text: #f2f2f3;
+      --muted: #9a9a9f;
+      --border: #26262a;
+      --accent: #f2f2f3;
+      --accent-text: #0b0b0c;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 440px;
+    padding: 56px 8px;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 1.3rem + 1.4vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+    line-height: 1.2;
+  }
+
+  .role {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin: 0 0 24px;
+  }
+
+  .bio {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--text);
+    margin: 0 0 36px;
+    opacity: 0.85;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--accent);
+    color: var(--accent-text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 13px 28px;
+    border-radius: 999px;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .cta:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+
+  .cta:active {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+
+  footer {
+    margin-top: 48px;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 40px 4px; }
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1>Mihovil Vargović</h1>
+    <p class="role">Product Designer</p>
+    <p class="bio">Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.</p>
+    <a class="cta" href="mailto:mihovilvargovic@gmail.com">Get in touch</a>
+    <footer>mihovilvargovic.com</footer>
+  </main>
+</body>
+</html>
