@@ -15,6 +15,8 @@
     --bg: #ffffff;
     --text: #15161a;
     --muted: #6f7177;
+    --card-border: #e7e7ea;
+    --card-hover-bg: #f0f0f1;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -22,6 +24,8 @@
       --bg: #0c0c0d;
       --text: #f3f3f5;
       --muted: #96979c;
+      --card-border: #2a2a2d;
+      --card-hover-bg: #1a1a1c;
     }
   }
 
@@ -79,27 +83,34 @@
     margin: 0 0 40px;
   }
 
+  .links-heading {
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+  }
+
   .links {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     margin: 0 0 40px;
     padding: 0;
     list-style: none;
   }
 
   .links a {
-    color: #335cff;
+    display: block;
+    color: var(--text);
     text-decoration: none;
-    font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
-    width: fit-content;
+    font-size: 1.0625rem;
+    padding: 22px 24px;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    transition: background-color 0.15s ease;
   }
 
-  .links a:hover { text-decoration: underline; }
-
-  @media (prefers-color-scheme: dark) {
-    .links a { color: #6e8bff; }
-  }
+  .links a:hover { background-color: var(--card-hover-bg); }
 
   @media (max-width: 480px) {
     main { padding-top: 56px; padding-bottom: 64px; }
@@ -115,6 +126,7 @@
 
       <p class="bio">Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.</p>
 
+      <h2 class="links-heading">Links</h2>
       <ul class="links">
         <li><a href="#">LinkedIn</a></li>
         <li><a href="#">Github</a></li>
