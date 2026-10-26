@@ -5,119 +5,166 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mihovil Vargović — Product Designer</title>
 <meta name="description" content="Mihovil Vargović — Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
   :root {
     --bg: #ffffff;
-    --text: #111113;
-    --muted: #6b6b70;
-    --border: #e7e7ea;
-    --accent: #111113;
-    --accent-text: #ffffff;
+    --text: #15161a;
+    --muted: #6f7177;
+    --border: #e9e9ec;
+    --tag-bg: #f3f3f5;
+    --cta-bg: #15161a;
+    --cta-text: #ffffff;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0b0b0c;
-      --text: #f2f2f3;
-      --muted: #9a9a9f;
-      --border: #26262a;
-      --accent: #f2f2f3;
-      --accent-text: #0b0b0c;
+      --bg: #0c0c0d;
+      --text: #f3f3f5;
+      --muted: #96979c;
+      --border: #27272a;
+      --tag-bg: #19191b;
+      --cta-bg: #f3f3f5;
+      --cta-text: #0c0c0d;
     }
   }
 
   * { box-sizing: border-box; }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-  }
+  html { -webkit-text-size-adjust: 100%; }
 
   body {
+    margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  .card {
+  ::selection {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .wrap {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 0 24px;
+  }
+
+  main {
     width: 100%;
-    max-width: 440px;
-    padding: 56px 8px;
-    text-align: center;
+    max-width: 640px;
+    padding-top: clamp(64px, 16vh, 168px);
+    padding-bottom: 96px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--tag-bg);
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 28px;
   }
 
   h1 {
-    font-size: clamp(1.6rem, 1.3rem + 1.4vw, 2.1rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    margin: 0 0 8px;
-    line-height: 1.2;
-  }
-
-  .role {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--muted);
-    margin: 0 0 24px;
+    font-size: clamp(2.25rem, 1.85rem + 2vw, 3.25rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin: 0 0 18px;
   }
 
   .bio {
-    font-size: 1.0625rem;
-    line-height: 1.6;
-    color: var(--text);
-    margin: 0 0 36px;
-    opacity: 0.85;
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+    line-height: 1.65;
+    color: var(--muted);
+    max-width: 46ch;
+    margin: 0 0 40px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 96px;
   }
 
   .cta {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
-    background: var(--accent);
-    color: var(--accent-text);
+    background: var(--cta-bg);
+    color: var(--cta-text);
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.95rem;
-    padding: 13px 28px;
+    font-size: 0.9375rem;
+    padding: 13px 24px;
     border-radius: 999px;
     transition: transform 0.15s ease, opacity 0.15s ease;
   }
 
-  .cta:hover {
-    opacity: 0.85;
-    transform: translateY(-1px);
-  }
+  .cta:hover { opacity: 0.82; transform: translateY(-1px); }
+  .cta:active { opacity: 0.65; transform: translateY(0); }
 
-  .cta:active {
-    transform: translateY(0);
-    opacity: 0.7;
-  }
+  .cta svg { width: 16px; height: 16px; }
 
   footer {
-    margin-top: 48px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 0.8125rem;
     color: var(--muted);
   }
 
+  footer a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  footer a:hover { color: var(--text); }
+
   @media (max-width: 480px) {
-    .card { padding: 40px 4px; }
+    main { padding-top: 56px; padding-bottom: 64px; }
+    .actions { margin-bottom: 64px; }
   }
 </style>
 </head>
 <body>
-  <main class="card">
-    <h1>Mihovil Vargović</h1>
-    <p class="role">Product Designer</p>
-    <p class="bio">Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.</p>
-    <a class="cta" href="mailto:mihovilvargovic@gmail.com">Get in touch</a>
-    <footer>mihovilvargovic.com</footer>
-  </main>
+  <div class="wrap">
+    <main>
+      <span class="tag">Product Designer</span>
+
+      <h1>Mihovil Vargović</h1>
+
+      <p class="bio">Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.</p>
+
+      <div class="actions">
+        <a class="cta" href="mailto:mihovilvargovic@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg>
+          Get in touch
+        </a>
+      </div>
+
+      <footer>
+        <span>mihovilvargovic.com</span>
+        <span>&copy; 2026</span>
+      </footer>
+    </main>
+  </div>
 </body>
 </html>
