@@ -15,7 +15,6 @@
     --bg: #ffffff;
     --text: #15161a;
     --muted: #6f7177;
-    --border: #e9e9ec;
     --tag-bg: #f3f3f5;
     --cta-bg: #15161a;
     --cta-text: #ffffff;
@@ -26,7 +25,6 @@
       --bg: #0c0c0d;
       --text: #f3f3f5;
       --muted: #96979c;
-      --border: #27272a;
       --tag-bg: #19191b;
       --cta-bg: #f3f3f5;
       --cta-text: #0c0c0d;
@@ -99,7 +97,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 96px;
   }
 
   .cta {
@@ -121,26 +118,8 @@
 
   .cta svg { width: 16px; height: 16px; }
 
-  footer {
-    border-top: 1px solid var(--border);
-    padding-top: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.8125rem;
-    color: var(--muted);
-  }
-
-  footer a {
-    color: var(--muted);
-    text-decoration: none;
-  }
-
-  footer a:hover { color: var(--text); }
-
   @media (max-width: 480px) {
     main { padding-top: 56px; padding-bottom: 64px; }
-    .actions { margin-bottom: 64px; }
   }
 </style>
 </head>
@@ -159,11 +138,6 @@
           Get in touch
         </a>
       </div>
-
-      <footer>
-        <span>mihovilvargovic.com</span>
-        <span>&copy; 2026</span>
-      </footer>
     </main>
   </div>
 </body>
