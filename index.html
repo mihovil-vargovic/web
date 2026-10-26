@@ -15,8 +15,6 @@
     --bg: #ffffff;
     --text: #15161a;
     --muted: #6f7177;
-    --cta-bg: #15161a;
-    --cta-text: #ffffff;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -24,8 +22,6 @@
       --bg: #0c0c0d;
       --text: #f3f3f5;
       --muted: #96979c;
-      --cta-bg: #f3f3f5;
-      --cta-text: #0c0c0d;
     }
   }
 
@@ -105,31 +101,6 @@
     .links a { color: #6e8bff; }
   }
 
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--cta-bg);
-    color: var(--cta-text);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    padding: 13px 24px;
-    border-radius: 999px;
-    transition: transform 0.15s ease, opacity 0.15s ease;
-  }
-
-  .cta:hover { opacity: 0.82; transform: translateY(-1px); }
-  .cta:active { opacity: 0.65; transform: translateY(0); }
-
-  .cta svg { width: 16px; height: 16px; }
-
   @media (max-width: 480px) {
     main { padding-top: 56px; padding-bottom: 64px; }
   }
@@ -151,13 +122,6 @@
         <li><a href="#">Journal</a></li>
         <li><a href="#">Print</a></li>
       </ul>
-
-      <div class="actions">
-        <a class="cta" href="mailto:mihovilvargovic@gmail.com">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg>
-          Get in touch
-        </a>
-      </div>
     </main>
   </div>
 </body>
