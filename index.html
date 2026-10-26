@@ -50,16 +50,14 @@
   .wrap {
     min-height: 100vh;
     display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 0 24px;
+    padding: 48px 24px;
   }
 
   main {
     width: 100%;
     max-width: 440px;
-    text-align: center;
-    padding-top: clamp(64px, 16vh, 168px);
-    padding-bottom: 96px;
   }
 
   h1 {
@@ -113,7 +111,7 @@
   .links a:hover { background-color: var(--card-hover-bg); }
 
   @media (max-width: 480px) {
-    main { padding-top: 56px; padding-bottom: 64px; }
+    .wrap { padding: 32px 24px; }
   }
 </style>
 </head>
