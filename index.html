@@ -15,7 +15,6 @@
     --bg: #ffffff;
     --text: #15161a;
     --muted: #6f7177;
-    --tag-bg: #f3f3f5;
     --cta-bg: #15161a;
     --cta-text: #ffffff;
   }
@@ -25,7 +24,6 @@
       --bg: #0c0c0d;
       --text: #f3f3f5;
       --muted: #96979c;
-      --tag-bg: #19191b;
       --cta-bg: #f3f3f5;
       --cta-text: #0c0c0d;
     }
@@ -63,34 +61,48 @@
     padding-bottom: 96px;
   }
 
-  .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--tag-bg);
-    color: var(--muted);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    padding: 6px 14px;
-    border-radius: 999px;
-    margin-bottom: 28px;
+  h1 {
+    font-size: clamp(2rem, 1.7rem + 1.6vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0 0 10px;
   }
 
-  h1 {
-    font-size: clamp(2.25rem, 1.85rem + 2vw, 3.25rem);
+  .role {
+    font-size: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
     font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.08;
-    margin: 0 0 18px;
+    margin: 0 0 14px;
   }
 
   .bio {
-    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
-    line-height: 1.65;
+    font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
+    line-height: 1.6;
     color: var(--muted);
-    max-width: 46ch;
+    max-width: 48ch;
     margin: 0 0 40px;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 40px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .links a {
+    color: #335cff;
+    text-decoration: none;
+    font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
+    width: fit-content;
+  }
+
+  .links a:hover { text-decoration: underline; }
+
+  @media (prefers-color-scheme: dark) {
+    .links a { color: #6e8bff; }
   }
 
   .actions {
@@ -126,11 +138,19 @@
 <body>
   <div class="wrap">
     <main>
-      <span class="tag">Product Designer</span>
-
       <h1>Mihovil Vargović</h1>
 
+      <p class="role">Product Designer</p>
+
       <p class="bio">Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.</p>
+
+      <ul class="links">
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Github</a></li>
+        <li><a href="#">Experiments</a></li>
+        <li><a href="#">Journal</a></li>
+        <li><a href="#">Print</a></li>
+      </ul>
 
       <div class="actions">
         <a class="cta" href="mailto:mihovilvargovic@gmail.com">
