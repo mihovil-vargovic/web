@@ -13,7 +13,7 @@
 <style>
   :root {
     --bg: #ffffff;
-    --text: #37352f;
+    --text: #212223;
     --muted: #6f7177;
     --card-border: #e7e7ea;
     --card-hover-bg: #f0f0f1;
@@ -76,8 +76,8 @@
   }
 
   .links-heading {
-    font-size: 1.375rem;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 500;
     letter-spacing: -0.01em;
     margin: 0 0 20px;
   }
@@ -104,6 +104,69 @@
 
   .links a:hover { background-color: var(--card-hover-bg); }
 
+  /* Label swap: both labels share one grid cell and crossfade */
+  .links a.swap { display: grid; }
+
+  .swap-default,
+  .swap-alt {
+    grid-area: 1 / 1;
+    transition:
+      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .swap-alt {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px);
+  }
+
+  @media (hover: hover) {
+    .links a.swap:hover .swap-default {
+      opacity: 0;
+      transform: translateY(-8px);
+      filter: blur(4px);
+    }
+    .links a.swap:hover .swap-alt {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .swap-default,
+    .swap-alt { transition: opacity 0.2s linear; transform: none !important; filter: none !important; }
+  }
+
+  /* Page-load entrance: every element folds up (fade + 8px rise), staggered 50ms */
+  @keyframes foldIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  h1,
+  .bio,
+  .links-heading,
+  .links li {
+    animation: foldIn 0.5s both;
+  }
+
+  h1 { animation-delay: 100ms; }
+  .bio { animation-delay: 150ms; }
+  .links-heading { animation-delay: 200ms; }
+  .links li:nth-child(1) { animation-delay: 250ms; }
+  .links li:nth-child(2) { animation-delay: 300ms; }
+  .links li:nth-child(3) { animation-delay: 350ms; }
+  .links li:nth-child(4) { animation-delay: 400ms; }
+  .links li:nth-child(5) { animation-delay: 450ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    h1,
+    .bio, .links-heading, .links li { animation: none; }
+  }
+
   @media (max-width: 480px) {
     .wrap { padding: 32px 24px; }
   }
@@ -118,9 +181,9 @@
 
       <h2 class="links-heading">Links</h2>
       <ul class="links">
-        <li><a href="http://www.linkedin.com/in/mihovilvargovic" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
         <li><a href="https://github.com/mihovil-vargovic" target="_blank" rel="noopener noreferrer">Github</a></li>
         <li><a href="https://wagnoise.tumblr.com" target="_blank" rel="noopener noreferrer">Experiments</a></li>
+        <li><a class="swap" href="http://www.linkedin.com/in/mihovilvargovic" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><span class="swap-default">LinkedIn</span><span class="swap-alt" aria-hidden="true">I am Thrilled and Humbled to…</span></a></li>
         <li><a href="https://hohshtapler.tumblr.com" target="_blank" rel="noopener noreferrer">Journal</a></li>
         <li><a href="https://cargocollective.com/mihovil" target="_blank" rel="noopener noreferrer">Print</a></li>
       </ul>
