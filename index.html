@@ -95,9 +95,10 @@
   .wrap {
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 48px 24px 248px; /* extra 200px at the bottom lifts the centered content 100px */
+    padding: 120px 24px 80px;
+    overflow-x: clip;
   }
 
   main {
@@ -149,6 +150,103 @@
 
   .links a:hover { background-color: var(--card-hover-bg); }
 
+  /* Screenshots: a stacked pile (Figma 1806:24953) that spreads into a horizontal strip on hover (1806:24954).
+     Sizes are multiples of --u, 1/568.2 of the content column, so everything scales with the column. */
+  .stack {
+    --pad: 64px;
+    --card-bg: #f4f4f4; /* colour behind the transparent mockups */
+    --radius: 24px; /* card corner radius (a % is relative to card width) */
+    position: relative;
+    width: 100%;
+    aspect-ratio: 568.2 / 615.7;
+    container-type: inline-size;
+  }
+
+  .track {
+    --u: calc(100cqw / 568.2);
+    --off: calc((100vw - 100cqw) / 2);
+    position: absolute;
+    top: calc(var(--pad) * -1);
+    bottom: calc(var(--pad) * -1);
+    left: 50%;
+    width: 100vw;
+    margin-left: -50vw;
+    overflow: hidden;
+    pointer-events: none;
+    scrollbar-width: none;
+  }
+
+  .track::-webkit-scrollbar { display: none; }
+
+  .track.expanded {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .track.open {
+    pointer-events: auto;
+    cursor: grab;
+  }
+
+  .track.dragging { cursor: grabbing; user-select: none; }
+
+  /* End padding for the scrollable strip: absolutely positioned cards don't add any */
+  .track.expanded::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--off) * 2 + 3760.4 * var(--u));
+    height: 1px;
+  }
+
+  .stack img {
+    position: absolute;
+    left: calc(var(--off) + var(--l) * var(--u) + var(--sx, 0px));
+    top: calc(var(--pad) + var(--t) * var(--u));
+    width: calc(509.425 * var(--u));
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    transform: rotate(var(--r));
+    translate: var(--ox, 0px) 0;
+    transition:
+      left 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      top 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      width 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: auto;
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
+  .track.reset img { transition: none; }
+
+  .track.open img {
+    left: calc(var(--off) + var(--i) * 635.07 * var(--u));
+    top: calc(var(--pad) + 15.3 * var(--u));
+    width: calc(585.069 * var(--u));
+    transform: rotate(0deg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Cards that only appear in the strip wait under the pile, hidden */
+  .stack img.extra { opacity: 0; pointer-events: none; }
+  .track.open img.extra { opacity: 1; pointer-events: auto; }
+
+  /* --l / --t: stacked offset, --r: stacked rotation, --i: position in the strip */
+  /* --shadow: elevation in the pile, bottom card lowest. In the strip the cards no longer overlap, so they share one soft shadow. */
+  .s-gmbld { --l: 23.06; --t: 23.06; --r: 5.45deg;  --i: 0; --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04); }
+  .s-kwi-1 { --l: 29.94; --t: 77.49; --r: -6.91deg; --i: 1; --shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.06); }
+  .s-kwi   { --l: 64.88; --t: 36.15; --r: 6.12deg;  --i: 3; --shadow: 0 4px 10px rgba(0, 0, 0, 0.1), 0 12px 28px rgba(0, 0, 0, 0.08); }
+  .s-clvrlst { --l: 23.06; --t: 23.06; --r: 0deg; --i: 4; --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04); }
+  .s-opl     { --l: 23.06; --t: 23.06; --r: 0deg; --i: 5; --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04); }
+  .s-rln   { --l: 30;    --t: 45.85; --r: 0deg;     --i: 2; --shadow: 0 6px 14px rgba(0, 0, 0, 0.12), 0 18px 40px rgba(0, 0, 0, 0.1); }
+
   /* Label swap: both labels share one grid cell and crossfade */
   .links a.swap { display: grid; }
 
@@ -181,6 +279,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .stack img { transition: none; }
     .swap-default,
     .swap-alt { transition: opacity 0.2s linear; transform: none !important; filter: none !important; }
   }
@@ -194,7 +293,8 @@
   h1,
   .bio,
   .links-heading,
-  .links li {
+  .links li,
+  .stack {
     animation: foldIn 0.5s both;
   }
 
@@ -206,14 +306,15 @@
   .links li:nth-child(3) { animation-delay: 350ms; }
   .links li:nth-child(4) { animation-delay: 400ms; }
   .links li:nth-child(5) { animation-delay: 450ms; }
+  .stack { animation-delay: 500ms; }
 
   @media (prefers-reduced-motion: reduce) {
     h1,
-    .bio, .links-heading, .links li { animation: none; }
+    .bio, .links-heading, .links li, .stack { animation: none; }
   }
 
   @media (max-width: 480px) {
-    .wrap { padding: 32px 24px 232px; }
+    .wrap { padding: 72px 24px 64px; }
   }
 </style>
 </head>
@@ -232,7 +333,141 @@
         <li><a href="https://hohshtapler.tumblr.com" target="_blank" rel="noopener noreferrer">Journal</a></li>
         <li><a href="https://cargocollective.com/mihovil" target="_blank" rel="noopener noreferrer">Print</a></li>
       </ul>
+
+      <div class="stack">
+        <div class="track">
+          <img class="s-opl extra" src="images/opl.png" width="900" height="900" alt="Mobile car financing offer screen" loading="lazy" draggable="false">
+          <img class="s-clvrlst extra" src="images/clvrlst.png" width="900" height="900" alt="Mobile mood picker screen with a smiling bowl" loading="lazy" draggable="false">
+          <img class="s-gmbld" src="images/gmbld.png" width="900" height="900" alt="Mobile app screen with a greeting, daily check-in and goal cards" loading="lazy" draggable="false">
+          <img class="s-kwi-1" src="images/kwi-1.png" width="900" height="900" alt="Mobile activity screen with a ring chart of hours by category" loading="lazy" draggable="false">
+          <img class="s-kwi" src="images/kwi.png" width="900" height="900" alt="Mobile flight search screen on kiwi.com" loading="lazy" draggable="false">
+          <img class="s-rln" src="images/rln.png" width="900" height="900" alt="Mobile stories feed with a create-new sheet" loading="lazy" draggable="false">
+        </div>
+      </div>
     </main>
   </div>
+
+  <script>
+    (function () {
+      var track = document.querySelector('.track');
+      if (!track) return;
+
+      // Opening centres the second card on screen, as in the Figma frame, so the strip spreads out to both sides.
+      // The pile is shifted by the same amount as the scroll (--sx), so nothing jumps before the cards start moving.
+      var closeTimer;
+      function open() {
+        if (track.classList.contains('open')) return;
+        clearTimeout(closeTimer);
+        if (!track.classList.contains('expanded')) {
+          var vw = track.clientWidth;
+          var col = track.parentElement.clientWidth;
+          var u = col / 568.2;
+          var target = Math.max(0, (vw - col) / 2 + 635.07 * u + 585.069 * u / 2 - vw / 2);
+          // Apply the scroll and the matching pile shift without a transition, so the pile doesn't visibly move
+          track.classList.add('expanded', 'reset');
+          track.style.setProperty('--sx', target + 'px');
+          track.scrollLeft = target;
+          void track.offsetWidth;
+          track.classList.remove('reset');
+        }
+        track.classList.add('open');
+      }
+
+      function close() {
+        if (!track.classList.contains('open')) return;
+        if (typeof stop === 'function') stop();
+        track.style.setProperty('--ox', '0px');
+        track.style.setProperty('--sx', track.scrollLeft + 'px');
+        track.classList.remove('open', 'dragging');
+        closeTimer = setTimeout(function () {
+          track.classList.add('reset');
+          track.classList.remove('expanded');
+          track.scrollLeft = 0;
+          track.style.setProperty('--sx', '0px');
+          void track.offsetWidth;
+          track.classList.remove('reset');
+        }, 650);
+      }
+
+      track.querySelectorAll('img').forEach(function (img) {
+        img.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') open(); });
+        img.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') open(); });
+      });
+      track.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') close(); });
+
+      // Mouse drag scrolls the strip horizontally with a bit of physics: the strip resists past either end
+      // (rubber band), keeps its momentum after release and springs back when it overshoots. Touch uses native scrolling.
+      var x = 0, v = 0, raf = 0, lastT = 0, samples = [];
+      var startX = 0, startPos = 0, down = false;
+
+      function maxScroll() { return track.scrollWidth - track.clientWidth; }
+
+      // x is the visual position: inside [0, max] it is the real scroll, outside it the cards are shifted by --ox
+      function apply(pos) {
+        var c = Math.min(Math.max(pos, 0), maxScroll());
+        track.scrollLeft = c;
+        track.style.setProperty('--ox', (c - pos) + 'px');
+      }
+
+      function rubber(excess) {
+        var d = track.clientWidth * 0.5;
+        return (1 - 1 / (excess * 0.3 / d + 1)) * d;
+      }
+
+      function stop() { cancelAnimationFrame(raf); raf = 0; }
+
+      function step(t) {
+        var dt = Math.min(t - lastT, 32);
+        lastT = t;
+        var max = maxScroll();
+        var bound = x < 0 ? 0 : x > max ? max : null;
+        if (bound !== null) {
+          v += (-0.0004 * (x - bound) - 0.04 * v) * dt;   // spring back, slightly underdamped
+        } else {
+          v *= Math.exp(-dt / 170);                          // friction
+        }
+        x += v * dt;
+        apply(x);
+        var settled = Math.abs(v) < 0.02 && (bound === null || Math.abs(x - bound) < 0.3);
+        if (settled) { apply(Math.min(Math.max(x, 0), max)); raf = 0; return; }
+        raf = requestAnimationFrame(step);
+      }
+
+      track.addEventListener('pointerdown', function (e) {
+        if (e.pointerType !== 'mouse' || !track.classList.contains('open')) return;
+        startPos = raf ? x : track.scrollLeft;
+        stop();
+        down = true;
+        startX = e.clientX;
+        samples = [];
+        track.classList.add('dragging');
+        track.setPointerCapture(e.pointerId);
+      });
+
+      track.addEventListener('pointermove', function (e) {
+        if (!down) return;
+        var raw = startPos - (e.clientX - startX) * 0.9;
+        var max = maxScroll();
+        x = raw < 0 ? -rubber(-raw) : raw > max ? max + rubber(raw - max) : raw;
+        apply(x);
+        var now = performance.now();
+        samples.push({ t: now, x: x });
+        while (samples.length > 1 && now - samples[0].t > 100) samples.shift();
+      });
+
+      function end() {
+        if (!down) return;
+        down = false;
+        track.classList.remove('dragging');
+        var first = samples[0], last = samples[samples.length - 1];
+        var span = first && last ? last.t - first.t : 0;
+        v = span > 0 && performance.now() - last.t < 80 ? (last.x - first.x) / span : 0;
+        lastT = performance.now();
+        raf = requestAnimationFrame(step);
+      }
+      track.addEventListener('pointerup', end);
+      track.addEventListener('pointercancel', end);
+    })();
+  </script>
 </body>
 </html>
