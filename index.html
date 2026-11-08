@@ -62,6 +62,8 @@
     --muted: #6f6e6a;
     --card-border: #d6d5d0;
     --card-hover-bg: #eae7e2;
+    --tip-bg: #faf9f6;
+    --tip-border: rgba(20, 20, 20, 0.06);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -71,6 +73,8 @@
       --muted: #a2a19e;
       --card-border: #454544;
       --card-hover-bg: #333332;
+      --tip-bg: #353534;
+      --tip-border: rgba(255, 255, 255, 0.08);
     }
   }
 
@@ -97,13 +101,13 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 120px 24px 80px;
+    padding: 64px 24px 80px;
     overflow-x: clip;
   }
 
   main {
     width: 100%;
-    max-width: 440px;
+    max-width: 500px;
   }
 
   h1 {
@@ -115,23 +119,64 @@
   }
 
   .bio {
-    font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
+    font-size: clamp(0.9375rem, 0.8875rem + 0.2vw, 1rem);
     line-height: 1.6;
     color: var(--muted);
-    margin: 0 0 40px;
+    margin: 0 0 16px;
   }
 
-  .links-heading {
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    margin: 0 0 20px;
+  .about {
+    font-size: clamp(0.9375rem, 0.8875rem + 0.2vw, 1rem);
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 24px;
+  }
+
+  .ul { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); }
+  a.ul { color: inherit; transition: color 0.15s ease; }
+  a.ul:hover { color: var(--text); }
+
+  /* Tooltip card: any .ul containing a .tip shows it on hover/focus */
+  .ul { position: relative; }
+  .tip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 12px);
+    transform: translate(-50%, 6px);
+    width: max-content;
+    max-width: 320px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: var(--tip-bg);
+    border: 1px solid var(--tip-border);
+    box-shadow: 0 8px 24px rgba(20, 20, 20, 0.10), 0 1px 2px rgba(20, 20, 20, 0.06);
+    text-align: left;
+    text-decoration: none;
+    pointer-events: none;
+    opacity: 0;
+    /* Exit: plain fade, then the slide offset resets unseen */
+    transition: opacity 0.12s ease, transform 0s linear 0.12s;
+    z-index: 10;
+  }
+  .ul:hover .tip,
+  .ul:focus-visible .tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    /* Enter: fades in while sliding up into place */
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  }
+  .tip-text {
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--muted);
   }
 
   .links {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     margin: 0 0 40px;
     padding: 0;
     list-style: none;
@@ -231,7 +276,7 @@
     top: calc(var(--pad) + 15.3 * var(--u));
     width: calc(585.069 * var(--u));
     transform: rotate(0deg);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.03);
   }
 
   /* Cards that only appear in the strip wait under the pile, hidden */
@@ -246,6 +291,29 @@
   .s-clvrlst { --l: 23.06; --t: 23.06; --r: 0deg; --i: 4; --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04); }
   .s-opl     { --l: 23.06; --t: 23.06; --r: 0deg; --i: 5; --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04); }
   .s-rln   { --l: 30;    --t: 45.85; --r: 0deg;     --i: 2; --shadow: 0 6px 14px rgba(0, 0, 0, 0.12), 0 18px 40px rgba(0, 0, 0, 0.1); }
+
+  /* Captions under each card in the strip. Hidden in the pile, they fade in once the cards have spread out */
+  .cap {
+    position: absolute;
+    left: calc(var(--off) + var(--i) * 635.07 * var(--u));
+    top: calc(var(--pad) + (15.3 + 585.069) * var(--u) + 16px);
+    width: calc(585.069 * var(--u));
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--muted);
+    opacity: 0;
+    translate: var(--ox, 0px) 0;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .track.open .cap {
+    opacity: 1;
+    transition: opacity 0.4s ease 0.3s;
+  }
 
   /* Label swap: both labels share one grid cell and crossfade */
   .links a.swap { display: grid; }
@@ -292,29 +360,30 @@
 
   h1,
   .bio,
-  .links-heading,
   .links li,
-  .stack {
+  .stack,
+  .about {
     animation: foldIn 0.5s both;
   }
 
   h1 { animation-delay: 100ms; }
   .bio { animation-delay: 150ms; }
-  .links-heading { animation-delay: 200ms; }
   .links li:nth-child(1) { animation-delay: 250ms; }
   .links li:nth-child(2) { animation-delay: 300ms; }
   .links li:nth-child(3) { animation-delay: 350ms; }
   .links li:nth-child(4) { animation-delay: 400ms; }
   .links li:nth-child(5) { animation-delay: 450ms; }
   .stack { animation-delay: 500ms; }
+  .about { animation-delay: 550ms; }
 
   @media (prefers-reduced-motion: reduce) {
     h1,
-    .bio, .links-heading, .links li, .stack { animation: none; }
+    .bio, .links li, .stack, .about { animation: none; }
   }
 
   @media (max-width: 480px) {
-    .wrap { padding: 72px 24px 64px; }
+    .wrap { padding: 32px 16px 64px; }
+    h1 { font-size: 22px; line-height: 28.6px; }
   }
 </style>
 </head>
@@ -325,7 +394,8 @@
 
       <p class="bio">Product designer focused on crafting user-friendly, accessible experiences that drive business outcomes.</p>
 
-      <h2 class="links-heading">Links</h2>
+      <p class="about">I’m currently designing and building cold wallet products at <a class="ul" href="https://trezor.io/?srsltid=AYCX9vKeQ7JxZH_BCYArHZb3I7UJezW9_CRYFW1bv6s0LBB6jQKNwW0M" target="_blank" rel="noopener noreferrer">Trezor<span class="tip" role="tooltip"><span class="tip-text">Visit site</span></span></a>. Before that, I shaped the shopping experience at <span class="ul" tabindex="0">Kiwi.com<span class="tip" role="tooltip"><span class="tip-text">Leading Search and working on Booking, Ancillaries and Checkout initiatives.</span></span></span>. I was also the founding product designer for several products in the Self-Sovereign Identity and verifiable credentials space, and worked at design agencies helping well-known <span class="ul" tabindex="0">brands<span class="tip" role="tooltip"><span class="tip-text">Opel, Allianz, Tcom, etc.</span></span></span> shape their digital presence.</p>
+
       <ul class="links">
         <li><a href="https://github.com/mihovil-vargovic" target="_blank" rel="noopener noreferrer">Github</a></li>
         <li><a href="https://wagnoise.tumblr.com" target="_blank" rel="noopener noreferrer">Experiments</a></li>
@@ -342,6 +412,12 @@
           <img class="s-kwi-1" src="images/kwi-1.png" width="900" height="900" alt="Mobile activity screen with a ring chart of hours by category" loading="lazy" draggable="false">
           <img class="s-kwi" src="images/kwi.png" width="900" height="900" alt="Mobile flight search screen on kiwi.com" loading="lazy" draggable="false">
           <img class="s-rln" src="images/rln.png" width="900" height="900" alt="Mobile stories feed with a create-new sheet" loading="lazy" draggable="false">
+          <p class="cap" style="--i:0">In progress</p>
+          <p class="cap" style="--i:1">Cleverest</p>
+          <p class="cap" style="--i:2">RealPlayer from RealNetworks</p>
+          <p class="cap" style="--i:3">Kiwi.com</p>
+          <p class="cap" style="--i:4"></p>
+          <p class="cap" style="--i:5">Opel</p>
         </div>
       </div>
     </main>
