@@ -136,7 +136,10 @@
       raf = requestAnimationFrame(tick);
     }
 
-    return { go: go };
+    return {
+      go: go,
+      stop: function () { cancelAnimationFrame(raf); raf = 0; },
+    };
   }
 
   /* ── the card, and everything is measured off it ───────────
@@ -145,8 +148,8 @@
      pivot's reach and the block's own box all follow.
      (Bencho's own are 156×208; these are exactly double, with
      PIVOT, LIFT, DEEP and SHUT_OFF doubled to match.) */
-  var CARD_W = 312;
-  var CARD_H = 416;
+  var CARD_W;
+  var CARD_H;
 
   /* ── how far below the pile the hand is ────────────────────
      The whole geometry of the fan is this one distance. Short,
@@ -157,12 +160,12 @@
      A little over a card and a quarter, which is where the two
      effects are about equal. It scales with the card, so the
      fan keeps its shape. */
-  var PIVOT = 520;
+  var PIVOT;
 
   /* the widest the fan ever opens, corner to corner in degrees.
      Spread is a window on this, never the whole of it — see
      `arc` below. */
-  var ARC = 40;
+  var ARC;
 
   /* ── the loosest the pile ever sits ────────────────────────
      Scatter at 100. A card can be five degrees off square and
@@ -171,7 +174,7 @@
      stops being a stack and becomes a mess, and the block is
      about a stack. */
   var SHUT_ROT = 5;
-  var SHUT_OFF = 14;
+  var SHUT_OFF;
 
   /* ── and the same disagreement in the OPEN fan ─────────────
      A SHARE OF THE STEP, not a number of degrees, and that
@@ -193,13 +196,13 @@
      — and opening is that fan carrying on rather than a squared
      pile changing into one. It sits inside
      the open fan's own reach, so the stage does not grow for it. */
-  var REST = 0.4;
+  var REST;
 
   /* how far each card behind the front one peeks out of the
      top of the pile, and how much smaller it is drawn. The
      recession is what makes cards in nearly the same place
      read as cards rather than as one thick one. */
-  var DEEP = 10;
+  var DEEP;
   var SINK = 0.016;
 
   /* how far the card under the pointer slides out of the fan,
@@ -209,7 +212,7 @@
      It is load-bearing rather than decorative: the card
      stays where it is in the stacking order, so this distance is
      the whole of what makes it legible. */
-  var LIFT = 40;
+  var LIFT;
 
   /* the beat between one card and the next, so the cards read as
      one motion travelling along the fan. */
@@ -251,30 +254,69 @@
      Everything below falls out of it and out of the card's own
      size, so changing a constant above moves the box with it
      rather than leaving a number here that used to be right. */
-  var MOST = (ARC / 2) * (1 + RAGGED);
-  /* how far the end card's centre swings, and how far the arc
-     carries it down */
-  var SWING = PIVOT * Math.sin(rad(MOST));
-  var DROP = PIVOT * (1 - Math.cos(rad(MOST)));
-  /* a turned rectangle is wider and taller than a square one */
-  var EXT_X = (CARD_W * Math.cos(rad(MOST)) + CARD_H * Math.sin(rad(MOST))) / 2;
-  var EXT_Y = (CARD_W * Math.sin(rad(MOST)) + CARD_H * Math.cos(rad(MOST))) / 2;
-  /* what the loosest pile adds on every side */
-  var JIT =
-    SHUT_OFF + (CARD_W * Math.sin(rad(SHUT_ROT)) + CARD_H * (1 - Math.cos(rad(SHUT_ROT)))) / 2;
-  /* and how far the back of a full pile reaches above the front
-     card's own top edge */
-  var PILE = (MAX - 1) * DEEP;
+  var MOST, SWING, DROP, EXT_X, EXT_Y, JIT, PILE, STAGE_W, ABOVE, BELOW, STAGE_H, VIEW_H, VIEW_W;
 
-  var STAGE_W = Math.ceil((SWING + EXT_X + JIT) * 2);
-  /* The scatter margin is counted on both sides and the lift is
-     counted once, above — and the two never happen at the same
-     moment, because the pile only scatters when it is shut and
-     a card is only drawn when the fan is open. The margin is
-     shared on purpose rather than added twice. */
-  var ABOVE = Math.max(CARD_H / 2 + PILE, EXT_Y - DROP) + LIFT + JIT;
-  var BELOW = Math.max(CARD_H / 2, EXT_Y + DROP) + JIT;
-  var STAGE_H = Math.ceil(ABOVE + BELOW);
+  /* ── two sizes: a desktop fan and a phone fan ───────────────
+     The fan is drawn at a scale `k` of Bencho's 156×208 card.
+     Desktop is 2×. On a phone the same 2× fan is ~940px wide and
+     shrinking it to fit left cards a third of their size, so the
+     phone gets its own fan: cards 240px wide and a narrower arc,
+     drawn at full size and left to run slightly off the edges of
+     a 390px screen rather than shrunk to fit. Everything is a ratio of the card,
+     so the fan keeps its shape at either. */
+  function geometry(phone) {
+    var k = phone ? 240 / 156 : 2;
+    CARD_W = Math.round(156 * k);
+    CARD_H = Math.round(208 * k);
+    /* ── a spread, not a tilt ─────────────────────────────────
+       The sideways travel of a card is PIVOT * sin(its angle), so
+       the same spread can be had from a big angle on a short
+       pivot (the deck fans and tilts) or from a small angle on a
+       long one (the deck slides apart and stays upright). This is
+       the second: the pivot is ~4x Bencho's and the arc a quarter
+       of what it was, so the end cards swing out about as far as
+       before but turn only a few degrees, and the arc that drops
+       the outer cards lower all but disappears. The deck opens
+       evenly from the middle instead of leaning to one side. */
+    PIVOT = phone ? 1050 : 2100;
+    SHUT_OFF = 7 * k;
+    /* the peek above the pile is small now: the sideways spread is
+       what separates the cards */
+    DEEP = (phone ? 3 : 3) * k;
+    /* how loose the resting pile is: Bencho's is 0.4; looser here so
+       the cards read as separate cards rather than one stack */
+    REST = phone ? 1 : 0.95;
+    LIFT = Math.round(20 * k);
+    ARC = phone ? 12 : 14;
+    MOST = (ARC / 2) * (1 + RAGGED);
+    /* how far the end card's centre swings, and how far the arc
+       carries it down */
+    SWING = PIVOT * Math.sin(rad(MOST));
+    DROP = PIVOT * (1 - Math.cos(rad(MOST)));
+    /* a turned rectangle is wider and taller than a square one */
+    EXT_X = (CARD_W * Math.cos(rad(MOST)) + CARD_H * Math.sin(rad(MOST))) / 2;
+    EXT_Y = (CARD_W * Math.sin(rad(MOST)) + CARD_H * Math.cos(rad(MOST))) / 2;
+    /* what the loosest pile adds on every side */
+    JIT =
+      SHUT_OFF + (CARD_W * Math.sin(rad(SHUT_ROT)) + CARD_H * (1 - Math.cos(rad(SHUT_ROT)))) / 2;
+    /* and how far the back of a full pile reaches above the front
+       card's own top edge */
+    PILE = (MAX - 1) * DEEP;
+
+    STAGE_W = Math.ceil((SWING + EXT_X + JIT) * 2);
+    /* The scatter margin is counted on both sides and the lift is
+       counted once, above — and the two never happen at the same
+       moment, because the pile only scatters when it is shut and
+       a card is only drawn when the fan is open. The margin is
+       shared on purpose rather than added twice. */
+    ABOVE = Math.max(CARD_H / 2 + PILE, EXT_Y - DROP) + LIFT + JIT;
+    BELOW = Math.max(CARD_H / 2, EXT_Y + DROP) + JIT;
+    STAGE_H = Math.ceil(ABOVE + BELOW);
+    VIEW_H = STAGE_H - 24;
+    VIEW_W = Math.round((VIEW_H * CARD_W) / CARD_H);
+  }
+
+
 
   /* a mockup on each card, counted from the TOP of the pile, so the
      first is the front card at every count */
@@ -302,8 +344,6 @@
      card being flipped over rather than a picture spinning.
 
      Sized to the stage, never past it. */
-  var VIEW_H = STAGE_H - 24;
-  var VIEW_W = Math.round((VIEW_H * CARD_W) / CARD_H);
   var VIEW_IN = 920;
   var VIEW_OUT = 660;
   /* the most the card in view leans under the pointer, at its edge */
@@ -328,8 +368,9 @@
   /* host: an empty block element. It is given a height and the
      stage is scaled down inside it when the viewport is narrower
      than the stage, so the fan never overflows a phone. */
-  function CardStack(host, opts) {
+  function build(host, opts, phone) {
     opts = opts || {};
+    geometry(phone);
     var spread = opts.spread == null ? 85 : opts.spread; /* how wide the fan opens, 0..100 */
     var bounce = opts.bounce == null ? 5 : opts.bounce; /* the spring, 0..100 */
     var scatter = opts.scatter == null ? 0 : opts.scatter; /* how much the pile and the fan disagree with themselves */
@@ -445,6 +486,9 @@
        is behind every card, so being over it is the
        definition of not being over one. */
     hit.addEventListener("pointerover", function () { setNear(null); });
+    hit.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse" && !hover) setHover(true);
+    });
     root.appendChild(hit);
 
     function sizeHit() {
@@ -484,7 +528,8 @@
       cards[id] = card;
       faces[id] = face;
 
-      card.addEventListener("pointerenter", function () {
+      card.addEventListener("pointerenter", function (e) {
+        if (e.pointerType !== "mouse") return;
         var slot = n - 1 - deck.indexOf(id);
         if (near === slot) return;
         setNear(slot);
@@ -494,7 +539,17 @@
          out from under the pointer before the release, and
          a click needs both on the same element */
       card.addEventListener("pointerdown", function (e) {
-        if (e.button === 0) open(n - 1 - deck.indexOf(id));
+        if (e.button !== 0) return;
+        /* ── a finger has no hover ─────────────────────────────
+           The first tap on a closed pile only fans it out, so you
+           can see the cards; a tap on a card in the open fan then
+           takes it out to look at. A mouse does both in one go,
+           because it has already opened the fan by arriving. */
+        if (e.pointerType !== "mouse" && !hover) {
+          setHover(true);
+          return;
+        }
+        open(n - 1 - deck.indexOf(id));
       });
     });
 
@@ -506,12 +561,16 @@
        divided by this scale, so the flight keeps working. */
     function fit() {
       var w = Math.min(document.documentElement.clientWidth - 32, STAGE_W);
-      var s = w > 0 ? Math.min(1, w / STAGE_W) : 1;
+      /* on a phone the fan is NOT shrunk to fit: the cards are drawn big
+       and the end of the open fan runs a little past the screen edge
+       (the page clips it), which beats small cards that fit */
+    var s = phone ? 1 : w > 0 ? Math.min(1, w / STAGE_W) : 1;
       root.style.transform = s < 1 ? "scale(" + s.toFixed(4) + ")" : "";
       host.style.height = Math.ceil(STAGE_H * s) + "px";
     }
     fit();
-    if (window.ResizeObserver) new ResizeObserver(fit).observe(host);
+    var ro = null;
+    if (window.ResizeObserver) { ro = new ResizeObserver(fit); ro.observe(host); }
     else window.addEventListener("resize", fit);
 
     /* ── draw ────────────────────────────────────────────────────
@@ -651,8 +710,11 @@
        BUBBLES from those children, and enter/leave do not.
        The containment test is what turns `out` back into
        `leave`. */
-    root.addEventListener("pointerover", function () { setHover(true); });
+    root.addEventListener("pointerover", function (e) {
+      if (e.pointerType === "mouse") setHover(true);
+    });
     root.addEventListener("pointerout", function (e) {
+      if (e.pointerType !== "mouse") return;
       var to = e.relatedTarget;
       if (to && root.contains(to)) return;
       setHover(false);
@@ -795,8 +857,46 @@
       if (e.key === "Escape") close();
     }
 
+    /* a tap anywhere else puts the fan away again, since a finger
+       leaving never says so */
+    function away(e) {
+      if (e.pointerType === "mouse" || !hover || view) return;
+      if (root.contains(e.target)) return;
+      setHover(false);
+      setNear(null);
+    }
+    document.addEventListener("pointerdown", away);
+
     sizeHit();
     render();
+
+    return function destroy() {
+      timers.forEach(clearTimeout);
+      springs.forEach(function (sp) { sp.stop(); });
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("keydown", onKey);
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", fit);
+      root.remove();
+    };
+  }
+
+  /* host: an empty block element. A phone gets a smaller fan (see
+     `geometry`), and it is rebuilt if the window crosses the line,
+     e.g. turning the phone sideways. */
+  function CardStack(host, opts) {
+    var mq = window.matchMedia("(max-width: 640px)");
+    var destroy = null;
+    function mount() {
+      if (destroy) destroy();
+      host.textContent = "";
+      host.style.height = "";
+      destroy = build(host, opts, mq.matches);
+    }
+    mount();
+    if (mq.addEventListener) mq.addEventListener("change", mount);
+    else mq.addListener(mount);
   }
 
   window.CardStack = CardStack;

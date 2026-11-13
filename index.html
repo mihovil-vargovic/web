@@ -236,7 +236,7 @@
 
   .repo svg { fill: color-mix(in srgb, var(--muted) 65%, transparent); width: 16px; height: 16px; }
 
-  .repo-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .repo-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; }
 
   .repo-name { font-weight: 400; color: var(--gh-blue); }
   .repo:hover .repo-name { text-decoration: underline; }
@@ -297,6 +297,7 @@
      stage down when the column is narrower than the fan */
   /* negative top margin: the stage has ~70px of empty room above the pile, so pull it up under the links */
   .stk-fit { position: relative; width: 100%; margin-top: -48px; }
+  @media (max-width: 640px) { .stk-fit { margin-top: -24px; } }
 
   .stk {
     /* ── Bencho's tokens, mapped to this site ─────────────────
