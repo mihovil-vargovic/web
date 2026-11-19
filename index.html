@@ -61,6 +61,7 @@
     --text: #141414;
     --muted: #6f6e6a;
     --card-border: #d6d5d0;
+    --dot-line: #b3b2ac;
     --card-hover-bg: #eae7e2;
     --tip-bg: #faf9f6;
     --tip-border: rgba(20, 20, 20, 0.06);
@@ -72,6 +73,7 @@
       --text: #f2f1ed;
       --muted: #a2a19e;
       --card-border: #454544;
+      --dot-line: #666664;
       --card-hover-bg: #333332;
       --tip-bg: #353534;
       --tip-border: rgba(255, 255, 255, 0.08);
@@ -268,7 +270,7 @@
   .links {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0;
     margin: 0 0 40px;
     padding: 0;
     list-style: none;
@@ -280,12 +282,59 @@
     text-decoration: none;
     font-size: 0.9375rem;
     padding: 14px 18px;
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
+    border: 0;
+    border-radius: inherit;
     transition: background-color 0.15s ease;
   }
 
+  /* Each list reads as one card split into rows. CSS dotted borders can't be spaced, so the lines are drawn by hand:
+     the outer outline is a masked dashed SVG rect on ul::after (1px dots, 5px gaps) and each divider is a repeating gradient.
+     Only the first and last rows are rounded; nothing clips, so the GitHub popover can still rise above. */
+  .links { position: relative; }
+  .links::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--dot-line);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect x='.5' y='.5' rx='11.5' ry='11.5' style='width:calc(100%25 - 1px);height:calc(100%25 - 1px)' fill='none' stroke='%23000' stroke-dasharray='1 4'/%3E%3C/svg%3E");
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect x='.5' y='.5' rx='11.5' ry='11.5' style='width:calc(100%25 - 1px);height:calc(100%25 - 1px)' fill='none' stroke='%23000' stroke-dasharray='1 4'/%3E%3C/svg%3E");
+  }
+  .links li { position: relative; border-radius: 0; }
+  .links li:first-child { border-radius: 12px 12px 0 0; }
+  .links li:last-child { border-radius: 0 0 12px 12px; }
+  .links li:only-child { border-radius: 12px; }
+  .links li + li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    pointer-events: none;
+    background: repeating-linear-gradient(90deg, var(--dot-line) 0 1px, transparent 1px 5px);
+  }
+
   .links a:hover { background-color: var(--card-hover-bg); }
+
+  .section-label {
+    margin: 8px 0 12px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .links.projects { margin-bottom: 64px; }
+  .links.projects a { display: flex; flex-direction: column; gap: 6px; }
+  .row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .row-icons { display: flex; align-items: center; gap: 10px; color: var(--muted); opacity: 0; transform: translateX(-4px); transition: opacity 0.15s ease, transform 0.15s ease; }
+  .row-icons svg { display: block; }
+  .links.projects a:hover .row-icons,
+  .links.projects a:focus-visible .row-icons { opacity: 1; transform: none; }
+  .row-sub { font-size: 0.8125rem; line-height: 1.45; color: var(--muted); }
+
+  /* Coming-soon tile: same shape as the others but inert and dimmed */
+  .links a.disabled { opacity: 0.45; cursor: not-allowed; }
+  .links a.disabled:hover { background-color: transparent; }
 
   /* ══ Card stack (Bencho, MIT — bencho.dev/licence) ═══════════
      A pile of cards that fans out on approach. All of the
@@ -579,6 +628,7 @@
   .bio,
   .links li,
   .stk-fit,
+  .section-label,
   .about {
     animation: foldIn 0.5s both;
   }
@@ -593,10 +643,16 @@
   .links li:nth-child(4) { animation-delay: 760ms; }
   .links li:nth-child(5) { animation-delay: 860ms; }
   .stk-fit { animation-delay: 980ms; }
+  .section-label { animation-delay: 1080ms; }
+  .projects li:nth-child(1) { animation-delay: 1160ms; }
+  .projects li:nth-child(2) { animation-delay: 1240ms; }
+  .projects li:nth-child(3) { animation-delay: 1320ms; }
+  .projects li:nth-child(4) { animation-delay: 1400ms; }
+  .projects li:nth-child(5) { animation-delay: 1480ms; }
 
   @media (prefers-reduced-motion: reduce) {
     h1,
-    .bio, .links li, .stk-fit, .about { animation: none; }
+    .bio, .links li, .stk-fit, .about, .section-label { animation: none; }
   }
 
   @media (max-width: 480px) {
@@ -634,19 +690,21 @@
               <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/></svg>
               <span class="repo-head"><span class="repo-name">lilmo</span><span class="repo-badge">Public</span></span>
             </a>
-            <a class="repo" href="https://github.com/mihovil-vargovic/plugin-file-organizer" target="_blank" rel="noopener noreferrer">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/></svg>
-              <span class="repo-head"><span class="repo-name">plugin-file-organizer</span><span class="repo-badge">Public</span></span>
-            </a>
           </div>
         </li>
         <li><a href="https://wagnoise.tumblr.com" target="_blank" rel="noopener noreferrer">Experiments</a></li>
         <li><a class="swap" href="http://www.linkedin.com/in/mihovilvargovic" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><span class="swap-default">LinkedIn</span><span class="swap-alt" aria-hidden="true">I am Thrilled and Humbled to…</span></a></li>
         <li><a href="https://hohshtapler.tumblr.com" target="_blank" rel="noopener noreferrer">Journal</a></li>
-        <li><a href="https://cargocollective.com/mihovil" target="_blank" rel="noopener noreferrer">Print</a></li>
+        <li><a class="swap" href="https://cargocollective.com/mihovil" target="_blank" rel="noopener noreferrer" aria-label="Print"><span class="swap-default">Print</span><span class="swap-alt" aria-hidden="true">Back in the day…</span></a></li>
       </ul>
 
       <div class="stk-fit" id="card-stack"></div>
+
+      <h2 class="section-label">Projects</h2>
+      <ul class="links projects">
+        <li><a href="https://github.com/mihovil-vargovic/plugin-file-organizer" target="_blank" rel="noopener noreferrer"><span class="row-head"><span class="row-title">plugin-file-organizer</span><span class="row-icons" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></span></span><span class="row-sub">Figma plugin that sets up standardized page structures for exploration and handoff files.</span></a></li>
+        <li><a class="disabled" aria-disabled="true" tabindex="-1"><span class="row-title">plugin-string-tester</span></a></li>
+      </ul>
     </main>
   </div>
 
