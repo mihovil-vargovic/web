@@ -120,14 +120,14 @@
 
   .bio {
     font-size: clamp(0.9375rem, 0.8875rem + 0.2vw, 1rem);
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--muted);
     margin: 0 0 16px;
   }
 
   .about {
     font-size: clamp(0.9375rem, 0.8875rem + 0.2vw, 1rem);
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--muted);
     margin: 0 0 24px;
   }
@@ -141,8 +141,9 @@
   .tip {
     position: absolute;
     left: 50%;
-    bottom: calc(100% + 12px);
-    transform: translate(-50%, 6px);
+    bottom: calc(100% + 2px);
+    transform: translate(-50%, 8px) scale(0.85);
+    transform-origin: 50% 100%;
     width: max-content;
     max-width: 320px;
     padding: 12px 16px;
@@ -154,16 +155,16 @@
     text-decoration: none;
     pointer-events: none;
     opacity: 0;
-    /* Exit: plain fade, then the slide offset resets unseen */
+    /* Exit: plain fade, then the pop offset resets unseen */
     transition: opacity 0.12s ease, transform 0s linear 0.12s;
     z-index: 10;
   }
   .ul:hover .tip,
   .ul:focus-visible .tip {
     opacity: 1;
-    transform: translate(-50%, 0);
-    /* Enter: fades in while sliding up into place */
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    transform: translate(-50%, 0) scale(1);
+    /* Enter: pops up from the word with a slight overshoot */
+    transition: opacity 0.15s ease-out, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .tip-text {
     display: block;
@@ -196,7 +197,8 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(6px);
+    transform: translateY(8px) scale(0.85);
+    transform-origin: 50% 100%;
     pointer-events: none;
     transition: opacity 0.12s ease, transform 0s linear 0.12s, visibility 0s linear 0.12s;
     z-index: 10;
@@ -259,7 +261,7 @@
       visibility: visible;
       transform: none;
       pointer-events: auto;
-      transition: opacity 0.2s ease-out 0.08s, transform 0.2s ease-out 0.08s, visibility 0s;
+      transition: opacity 0.15s ease-out 0.08s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s, visibility 0s;
     }
   }
 
@@ -656,22 +658,36 @@
       if (!li) return;
       var pop = li.querySelector('.repos');
       var r, w, raf = 0, ex = 0, ey = 0;
+      var tx = 0, ty = 0, cx = 0, cy = 0, rot = 0;
       // Measure once per entry, not on every move
       function measure() { r = li.getBoundingClientRect(); w = pop.offsetWidth; }
-      function apply() {
-        raf = 0;
-        var x = Math.min(Math.max(ex - r.left - w / 2, 0), Math.max(0, r.width - w));
-        // The popover rests 12px above the row; lower it so its bottom edge sits 14px above the cursor
-        var y = ey - r.top - 2;
-        pop.style.translate = x + 'px ' + y + 'px';
+      function target() {
+        tx = Math.min(Math.max(ex - r.left - w / 2, 0), Math.max(0, r.width - w));
+        // The popover rests 12px above the row. It may rise with the cursor but never drop into the row,
+        // otherwise it covers the text being hovered and freezes under the pointer.
+        ty = Math.min(ey - r.top - 2, 0);
+      }
+      // Follows the cursor and tilts toward the direction of travel (up to 6deg), then settles upright
+      function tick() {
+        // Position tracks the cursor 1:1 (no lag); only the tilt is smoothed, driven by this frame's horizontal movement
+        var dx = tx - cx;
+        cx = tx; cy = ty;
+        rot += (Math.max(-6, Math.min(6, dx * 0.5)) - rot) * 0.25;
+        pop.style.translate = cx + 'px ' + cy + 'px';
+        pop.style.rotate = rot + 'deg';
+        if (dx !== 0 || Math.abs(rot) > 0.05) raf = requestAnimationFrame(tick);
+        else raf = 0;
       }
       function place(e) {
         if (e.pointerType && e.pointerType !== 'mouse') return;
         if (pop.contains(e.target)) return;
-        if (e.type === 'pointerenter') measure();
         ex = e.clientX;
         ey = e.clientY;
-        if (!raf) raf = requestAnimationFrame(apply);
+        if (e.type === 'pointerenter') {
+          measure(); target();
+          cx = tx; cy = ty; rot = 0; // snap on entry so it doesn't fly in from the corner
+        } else target();
+        if (!raf) raf = requestAnimationFrame(tick);
       }
       li.addEventListener('pointerenter', place);
       li.addEventListener('pointermove', place);
