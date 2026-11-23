@@ -321,12 +321,12 @@
   /* a mockup on each card, counted from the TOP of the pile, so the
      first is the front card at every count */
   var PHOTOS = [
-    { src: "images/rln.png", alt: "Mobile stories feed with a create-new sheet" },
-    { src: "images/kwi.png", alt: "Mobile flight search screen on kiwi.com" },
-    { src: "images/kwi-1.png", alt: "Mobile activity screen with a ring chart of hours by category" },
-    { src: "images/gmbld.png", alt: "Mobile app screen with a greeting, daily check-in and goal cards" },
-    { src: "images/clvrlst.png", alt: "Mobile mood picker screen with a smiling bowl" },
-    { src: "images/opl.png", alt: "Mobile car financing offer screen" },
+    { src: "images/rln.png", alt: "Mobile stories feed with a create-new sheet", title: "RealPlayer from RealNetworks" },
+    { src: "images/kwi.png", alt: "Mobile flight search screen on kiwi.com", title: "Kiwi.com" },
+    { src: "images/kwi-1.png", alt: "Mobile activity screen with a ring chart of hours by category", title: "" },
+    { src: "images/gmbld.png", alt: "Mobile app screen with a greeting, daily check-in and goal cards", title: "In progress" },
+    { src: "images/clvrlst.png", alt: "Mobile mood picker screen with a smiling bowl", title: "Cleverest" },
+    { src: "images/opl.png", alt: "Mobile car financing offer screen", title: "Opel Autobörse" },
   ];
 
   /* ── a card taken out to look at ───────────────────────────
@@ -405,6 +405,20 @@
     var tilt = null;
     var cards = [];
     var faces = [];
+    /* a copy of each card that sits above the whole fan and takes no
+       pointer events. It is shown over the card under the pointer so
+       the whole photograph is legible, while hit-testing still runs
+       against the real cards and the fan keeps its order. */
+    var ghosts = [];
+    /* a soft blur-and-fade behind the raised card, over the page text
+       around the fan, so the card does not sit hard against it. It is
+       painted over the page, not laid out in it: nothing moves. */
+    var veil = null;
+    /* the project's name, upright under the card that is raised */
+    var cap = null;
+    /* a small round button in the corner of the card in view */
+    var closeBtn = null;
+    var gfaces = [];
     /* each card's angle and recession as last drawn, so the flight
        can start from exactly where the card is */
     var poses = [];
@@ -528,6 +542,20 @@
       cards[id] = card;
       faces[id] = face;
 
+      var ghost = el("span", "stk-card stk-ghost");
+      ghost.setAttribute("aria-hidden", "true");
+      ghost.style.left = card.style.left;
+      ghost.style.top = card.style.top;
+      ghost.style.width = card.style.width;
+      ghost.style.height = card.style.height;
+      ghost.style.transformOrigin = card.style.transformOrigin;
+      var gface = el("span", "stk-face");
+      gface.appendChild(image(PHOTOS[id % PHOTOS.length]));
+      ghost.appendChild(gface);
+      root.appendChild(ghost);
+      ghosts[id] = ghost;
+      gfaces[id] = gface;
+
       card.addEventListener("pointerenter", function (e) {
         if (e.pointerType !== "mouse") return;
         var slot = n - 1 - deck.indexOf(id);
@@ -553,6 +581,15 @@
       });
     });
 
+    veil = el("span", "stk-veil");
+    veil.setAttribute("aria-hidden", "true");
+    /* a sibling of the fan, not inside it: the fan is raised above it,
+       so it blurs the page text around the fan and never the cards */
+    host.appendChild(veil);
+    cap = el("span", "stk-cap");
+    cap.setAttribute("aria-hidden", "true");
+    root.appendChild(cap);
+
     host.appendChild(root);
 
     /* The stage may be wider than the text column — its corners are
@@ -576,6 +613,8 @@
     /* ── draw ────────────────────────────────────────────────────
        Each card's transform from its spring, its slot and the seed. */
     function render() {
+      var anyLift = false;
+      var capOn = false;
       for (var i = 0; i < n; i += 1) {
         var u = at[i] / 100;
         /* 0 at the back of the pile, n-1 on top */
@@ -635,7 +674,28 @@
         face.style.scale = recede;
         if (lift) face.setAttribute("data-lift", "");
         else face.removeAttribute("data-lift");
+
+        /* the copy on top follows the card exactly, and is only
+           visible while the card is the one being pointed at */
+        var ghost = ghosts[id];
+        var gface = gfaces[id];
+        ghost.style.transform = card.style.transform;
+        gface.style.scale = recede;
+        if (lift) gface.setAttribute("data-lift", "");
+        else gface.removeAttribute("data-lift");
+        ghost.style.opacity = lift ? "1" : "0";
       }
+      /* the name and the blur are for the big preview only, not the hover */
+      if (view && !closing) {
+        var vt = PHOTOS[view.id % PHOTOS.length].title || "";
+        cap.textContent = vt;
+        cap.style.left = STAGE_W / 2 + "px";
+        cap.style.top = ((STAGE_H + VIEW_H) / 2 + 20).toFixed(1) + "px";
+        capOn = vt !== "";
+        anyLift = true;
+      }
+      cap.style.opacity = capOn ? "1" : "0";
+      veil.style.opacity = anyLift ? "1" : "0";
     }
 
     /* Six springs, one per slot, each a little livelier or heavier
@@ -777,6 +837,21 @@
       flyer.appendChild(tilt);
       root.appendChild(flyer);
 
+      /* a sibling of the flyer, not inside it: the flyer ends turned
+         over, which would mirror anything drawn on it */
+      closeBtn = el("button", "stk-x");
+      closeBtn.type = "button";
+      closeBtn.setAttribute("aria-label", "Close");
+      closeBtn.innerHTML =
+        '<svg viewBox="0 0 8 8" width="8" height="8" aria-hidden="true"><path d="M0.8 0.8l6.4 6.4M7.2 0.8L0.8 7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+      closeBtn.style.left = (STAGE_W + VIEW_W) / 2 - 16 - 20 + "px";
+      closeBtn.style.top = (STAGE_H - VIEW_H) / 2 + 16 + "px";
+      closeBtn.addEventListener("click", close);
+      root.appendChild(closeBtn);
+      requestAnimationFrame(function () {
+        if (closeBtn && !closing) closeBtn.setAttribute("data-on", "");
+      });
+
       /* ── a slight tilt under the pointer ──────────────────
          The point you are over sinks away and the far side
          comes up (TILT degrees at the very edge). It is on an
@@ -811,6 +886,7 @@
     function close() {
       if (!view || closing) return;
       closing = true;
+      if (closeBtn) closeBtn.removeAttribute("data-on");
       /* level again on the way home */
       if (tilt) tilt.style.transform = "";
       var home = poseOf(n - 1);
@@ -825,6 +901,8 @@
         document.removeEventListener("pointerdown", onDown, true);
         document.removeEventListener("keydown", onKey);
         if (flyer) flyer.remove();
+        if (closeBtn) closeBtn.remove();
+        closeBtn = null;
         flyer = null;
         tilt = null;
         view = null;

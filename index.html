@@ -347,10 +347,11 @@
   /* the host: gets its height from the script, which scales the
      stage down when the column is narrower than the fan */
   /* negative top margin: the stage has ~70px of empty room above the pile, so pull it up under the links */
-  .stk-fit { position: relative; width: 100%; margin-top: -48px; }
+  .stk-fit { position: relative; z-index: 2; width: 100%; margin-top: -48px; }
   @media (max-width: 640px) { .stk-fit { margin-top: -24px; } }
 
   .stk {
+    z-index: 2;
     /* ── Bencho's tokens, mapped to this site ─────────────────
        Defined here on the component's own root so nothing leaks.
        --fill-slab / --card: the card's ground, which shows
@@ -564,6 +565,83 @@
     transition:
       opacity 360ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* blur and fade over the page around the fan while a card is raised */
+  .stk-veil {
+    position: absolute;
+    left: -80px;
+    right: -80px;
+    top: -130px;
+    bottom: -130px;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 90px), transparent),
+      linear-gradient(to right, transparent, #000 60px, #000 calc(100% - 60px), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 90px), transparent),
+      linear-gradient(to right, transparent, #000 60px, #000 calc(100% - 60px), transparent);
+    mask-composite: intersect;
+    transition: opacity 200ms ease;
+  }
+
+  /* the little round close button on the card in view */
+  .stk-x {
+    position: absolute;
+    z-index: 102;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--muted);
+    color: var(--bg);
+    cursor: pointer;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 200ms ease 0ms, transform 150ms ease;
+  }
+  .stk-x[data-on] { opacity: 1; transition: opacity 300ms ease 650ms, transform 150ms ease; }
+  .stk-x svg { display: block; }
+  .stk-x:hover { transform: scale(1.08); }
+  .stk-x:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+  /* the project's name under the raised card */
+  .stk-cap {
+    position: absolute;
+    z-index: 101;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text);
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  /* the blur and the title are for desktop only: no hover on touch,
+     and the narrow layout has no room around the fan for them */
+  @media (max-width: 640px), (hover: none) {
+    .stk-veil, .stk-cap { display: none; }
+  }
+
+  /* the copy shown above the fan on the card under the pointer, so
+     the whole photograph reads; it never takes the pointer */
+  .stk-ghost {
+    pointer-events: none;
+    cursor: default;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 140ms ease;
   }
 
   /* the photograph fills the face and takes its corner */
