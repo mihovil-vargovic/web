@@ -960,6 +960,32 @@
     };
   }
 
+  /* ── phone: a plain carousel ────────────────────────────────
+     No fan on a phone. The six photographs sit side by side in a
+     row that scrolls sideways and snaps, each one a little narrower
+     than the screen so the next peeks in from the right. */
+  function carousel(host) {
+    var track = el("div", "car");
+    PHOTOS.forEach(function (p) {
+      var item = el("div", "car-item");
+      var img = image(p);
+      img.alt = p.alt;
+      img.loading = "lazy";
+      item.appendChild(img);
+      track.appendChild(item);
+    });
+    host.appendChild(track);
+    /* start on a middle photograph, not the first */
+    function centre() {
+      var item = track.children[Math.floor(PHOTOS.length / 2)];
+      var t = track.getBoundingClientRect(), r = item.getBoundingClientRect();
+      track.scrollLeft += r.left - t.left - (t.width - r.width) / 2;
+    }
+    centre();
+    requestAnimationFrame(centre);
+    return function () { track.remove(); };
+  }
+
   /* host: an empty block element. A phone gets a smaller fan (see
      `geometry`), and it is rebuilt if the window crosses the line,
      e.g. turning the phone sideways. */
@@ -970,7 +996,7 @@
       if (destroy) destroy();
       host.textContent = "";
       host.style.height = "";
-      destroy = build(host, opts, mq.matches);
+      destroy = mq.matches ? carousel(host) : build(host, opts, false);
     }
     mount();
     if (mq.addEventListener) mq.addEventListener("change", mount);

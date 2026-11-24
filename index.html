@@ -162,12 +162,15 @@
     z-index: 10;
   }
   .ul:hover .tip,
-  .ul:focus-visible .tip {
+  .ul:focus-visible .tip,
+  .ul.open .tip {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
     /* Enter: pops up from the word with a slight overshoot */
     transition: opacity 0.15s ease-out, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+  /* touch: the tip is a tap target once open (it sits inside the link, so tapping it opens the new tab) */
+  .ul.open .tip { pointer-events: auto; }
   .tip-text {
     display: block;
     font-size: 14px;
@@ -323,6 +326,7 @@
     font-weight: 500;
     color: var(--muted);
   }
+  @media (max-width: 640px) { .section-label { margin-top: 32px; } }
   .links.projects { margin-bottom: 64px; }
   .links.projects a { display: flex; flex-direction: column; gap: 6px; }
   .row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -348,7 +352,36 @@
      stage down when the column is narrower than the fan */
   /* negative top margin: the stage has ~70px of empty room above the pile, so pull it up under the links */
   .stk-fit { position: relative; z-index: 2; width: 100%; margin-top: -48px; }
-  @media (max-width: 640px) { .stk-fit { margin-top: -24px; } }
+  @media (max-width: 640px) { .stk-fit { margin-top: 8px; container-type: inline-size; } }
+
+  /* phone: a plain horizontal carousel, full-bleed, snapping, next card peeking */
+  .car {
+    display: flex;
+    gap: 12px;
+    margin: -8px -16px -12px;
+    /* side padding lets the first and last photo sit in the middle too */
+    padding: 8px calc((100cqw + 32px - 400px) / 2) 28px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .car::-webkit-scrollbar { display: none; }
+  .car-item {
+    flex: 0 0 400px;
+    aspect-ratio: 1;
+    scroll-snap-align: center;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f4f4f4;
+    /* same shadow as the desktop cards */
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+      0 1px 2px rgba(15, 23, 42, 0.1),
+      0 8px 18px -6px rgba(15, 23, 42, 0.16);
+  }
+  .car-item .stk-img { pointer-events: none; }
 
   .stk {
     z-index: 2;
@@ -829,6 +862,25 @@
       li.addEventListener('pointermove', place);
       window.addEventListener('resize', measure);
       window.addEventListener('scroll', measure, { passive: true });
+    })();
+  </script>
+  <script>
+    // Touch: tapping the Trezor link only opens its tooltip; tapping the tooltip itself opens the site in a new tab.
+    (function () {
+      if (!window.matchMedia('(hover: none)').matches) return;
+      var a = document.querySelector('a.ul[target="_blank"]');
+      if (!a) return;
+      a.addEventListener('click', function (e) {
+        if (a.classList.contains('open') && e.target.closest('.tip')) {
+          a.classList.remove('open');
+          return; // default: new tab
+        }
+        e.preventDefault();
+        a.classList.toggle('open');
+      });
+      document.addEventListener('click', function (e) {
+        if (!a.contains(e.target)) a.classList.remove('open');
+      });
     })();
   </script>
   <script src="card-stack.js"></script>
