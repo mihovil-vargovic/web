@@ -321,12 +321,12 @@
   /* a mockup on each card, counted from the TOP of the pile, so the
      first is the front card at every count */
   var PHOTOS = [
-    { src: "images/rln.png", alt: "Mobile stories feed with a create-new sheet", title: "RealPlayer from RealNetworks" },
-    { src: "images/kwi.png", alt: "Mobile flight search screen on kiwi.com", title: "Kiwi.com" },
-    { src: "images/kwi-1.png", alt: "Mobile activity screen with a ring chart of hours by category", title: "" },
-    { src: "images/gmbld.png", alt: "Mobile app screen with a greeting, daily check-in and goal cards", title: "In progress" },
-    { src: "images/clvrlst.png", alt: "Mobile mood picker screen with a smiling bowl", title: "Cleverest" },
-    { src: "images/opl.png", alt: "Mobile car financing offer screen", title: "Opel Autobörse" },
+    { src: "images/rln.webp", alt: "Mobile stories feed with a create-new sheet", title: "RealPlayer from RealNetworks" },
+    { src: "images/kwi.webp", alt: "Mobile flight search screen on kiwi.com", title: "Kiwi.com" },
+    { src: "images/gmbld.webp", alt: "Mobile app screen with a greeting, daily check-in and goal cards", title: "In progress" },
+    { src: "images/kwi-1.webp", alt: "Mobile activity screen with a ring chart of hours by category", title: "Cleverest" },
+    { src: "images/clvrlst.webp", alt: "Mobile mood picker screen with a smiling bowl", title: "Cleverest" },
+    { src: "images/opl.webp", alt: "Mobile car financing offer screen", title: "Opel Autobörse" },
   ];
 
   /* ── a card taken out to look at ───────────────────────────
@@ -362,6 +362,7 @@
     img.src = photo.src;
     img.alt = "";
     img.draggable = false;
+    img.decoding = "async";
     return img;
   }
 
@@ -689,12 +690,14 @@
       if (view && !closing) {
         var vt = PHOTOS[view.id % PHOTOS.length].title || "";
         cap.textContent = vt;
-        cap.style.left = STAGE_W / 2 + "px";
-        cap.style.top = ((STAGE_H + VIEW_H) / 2 + 20).toFixed(1) + "px";
+        cap.style.left = (STAGE_W - VIEW_W) / 2 + 4 + "px";
+        cap.style.top = ((STAGE_H + VIEW_H) / 2 + 18).toFixed(1) + "px";
         capOn = vt !== "";
         anyLift = true;
       }
-      cap.style.opacity = capOn ? "1" : "0";
+      /* fades in after the card has landed, like the close button (see .stk-cap[data-on]) */
+      if (capOn) cap.setAttribute("data-on", "");
+      else cap.removeAttribute("data-on");
       veil.style.opacity = anyLift ? "1" : "0";
     }
 
@@ -843,8 +846,8 @@
       closeBtn.type = "button";
       closeBtn.setAttribute("aria-label", "Close");
       closeBtn.innerHTML =
-        '<svg viewBox="0 0 8 8" width="8" height="8" aria-hidden="true"><path d="M0.8 0.8l6.4 6.4M7.2 0.8L0.8 7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
-      closeBtn.style.left = (STAGE_W + VIEW_W) / 2 - 16 - 20 + "px";
+        '<svg viewBox="0 0 10 10" width="9" height="9" aria-hidden="true"><path d="M1 1l8 8M9 1L1 9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
+      closeBtn.style.left = (STAGE_W + VIEW_W) / 2 - 16 - 24 + "px";
       closeBtn.style.top = (STAGE_H - VIEW_H) / 2 + 16 + "px";
       closeBtn.addEventListener("click", close);
       root.appendChild(closeBtn);
