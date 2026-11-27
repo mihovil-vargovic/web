@@ -246,7 +246,7 @@
   }
   /* beat the generic ".links a" row styling */
   .links .repos a.repo { display: grid; padding: 6px; border: 0; border-radius: 10px; font-size: 14px; }
-  .repos .repo:hover { background-color: var(--card-hover-bg); }
+  .repos .repo:hover { background-color: var(--bg); }
 
 
   .repo-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; }
@@ -345,6 +345,74 @@
   /* Coming-soon tile: same shape as the others but inert and dimmed */
   .links a.disabled { opacity: 0.45; cursor: not-allowed; }
   .links a.disabled:hover { background-color: transparent; }
+  /* Project demo: clicking the row name opens a small floating window in the bottom-right corner */
+  .links a.demo-open { cursor: pointer; }
+  .demo {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 200;
+    width: 616px;
+    padding: 6px;
+    border-radius: 18px;
+    background: var(--tip-bg);
+    border: 1px solid var(--tip-border);
+    box-shadow: 0 16px 40px rgba(20, 20, 20, 0.16), 0 1px 2px rgba(20, 20, 20, 0.06);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px) scale(0.92);
+    transform-origin: 100% 100%;
+    transition: opacity 0.15s ease, transform 0s linear 0.15s, visibility 0s linear 0.15s;
+  }
+  .demo.open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.18s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0s;
+  }
+  .demo-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 4px 8px 10px;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .demo-x {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+    border-radius: 50%;
+    background: transparent;
+    color: color-mix(in srgb, var(--text) 75%, transparent);
+    cursor: pointer;
+    transition: transform 150ms ease, border-color 150ms ease;
+  }
+  .demo-x:hover { transform: scale(1.08); border-color: color-mix(in srgb, var(--text) 28%, transparent); }
+  .demo-x svg { display: block; }
+  .demo video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2254 / 1268;
+    border-radius: 12px;
+    background: #f4f4f4;
+    object-fit: cover;
+  }
+  @media (max-width: 680px) {
+    .demo { left: 16px; right: 16px; bottom: 16px; width: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .demo, .demo.open { transition: opacity 0.15s ease, visibility 0s; transform: none; }
+  }
+
+  /* Live project without a public link yet: full colour, but not clickable */
+  .links a.static { cursor: default; }
+  .links a.static:hover { background-color: transparent; }
+  .links a.static.demo-open:hover { background-color: var(--card-hover-bg); }
 
   /* ══ Card stack (Bencho, MIT — bencho.dev/licence) ═══════════
      A pile of cards that fans out on approach. All of the
@@ -818,9 +886,17 @@
       <h2 class="section-label">Projects</h2>
       <ul class="links projects">
         <li><a href="https://github.com/mihovil-vargovic/plugin-file-organizer" target="_blank" rel="noopener noreferrer"><span class="row-head"><span class="row-title">plugin-file-organizer</span><span class="row-icons" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></span></span><span class="row-sub">Figma plugin that sets up standardized page structures for exploration and handoff files.</span></a></li>
-        <li><a class="disabled" aria-disabled="true" tabindex="-1"><span class="row-title">plugin-string-tester</span></a></li>
+        <li><a class="static demo-open" role="button" tabindex="0" aria-controls="demo" aria-expanded="false"><span class="row-title">plugin-string-tester</span><span class="row-sub">Figma plugin for previewing your designs in other languages.</span></a></li>
       </ul>
     </main>
+  </div>
+
+  <div class="demo" id="demo" role="dialog" aria-label="plugin-string-tester demo" aria-hidden="true">
+    <div class="demo-head">
+      <span>plugin-string-tester</span>
+      <button class="demo-x" type="button" aria-label="Close"><svg viewBox="0 0 10 10" width="9" height="9" aria-hidden="true"><path d="M1 1l8 8M9 1L1 9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+    </div>
+    <video muted loop playsinline preload="none" src="videos/string-tester.mp4?v=3"></video>
   </div>
 
   <script>
@@ -885,6 +961,28 @@
       document.addEventListener('click', function (e) {
         if (!a.contains(e.target)) a.classList.remove('open');
       });
+    })();
+  </script>
+  <script>
+    // Project demo window: the row name opens it in the bottom-right corner; ×, Escape or the name again closes it.
+    (function () {
+      var row = document.querySelector('.demo-open');
+      var win = document.getElementById('demo');
+      if (!row || !win) return;
+      var v = win.querySelector('video');
+      function set(open) {
+        win.classList.toggle('open', open);
+        win.setAttribute('aria-hidden', !open);
+        row.setAttribute('aria-expanded', open);
+        if (open) { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        else v.pause();
+      }
+      row.addEventListener('click', function () { set(!win.classList.contains('open')); });
+      row.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set(!win.classList.contains('open')); }
+      });
+      win.querySelector('.demo-x').addEventListener('click', function () { set(false); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
     })();
   </script>
   <script src="card-stack.js?v=9"></script>
